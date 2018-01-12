@@ -33,31 +33,47 @@ class DoneBar extends React.Component {
     height: 0,
     width: width,
     bottom: -81
+  };
+
+  componentWillMount() {
+    this.keyboardWillChangeFrameListener = Keyboard.addListener('keyboardWillChangeFrame', ({ endCoordinates }) => {
+      this.recalculatePosition(this.props.keyboardType, endCoordinates);
+    });
   }
 
-  componentWillMount(props) {
-    const config = {
-      duration: 250,
-      update: {
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.keyboardType !== this.props.keyboardType) {
+      return this.recalculatePosition(nextProps.keyboardType);
+    }
+  }
+
+  recalculatePosition(keyboardType, endCoordinates = this.state.endCoordinates) {
+    if (!endCoordinates) {
+      return;
+    }
+
+    let { screenY } = endCoordinates;
+
+    if (screenY === height || keyboardType !== 'numeric') {
+      bottom = -81;
+    } else {
+      bottom = endCoordinates.height - 40;
+    }
+
+    if (this.props.includeLayoutAnimation) {
+      LayoutAnimation.configureNext({
         duration: 250,
-        type: LayoutAnimation.Types.keyboard
-      }
-    };
-
-    this.keyboardWillChangeFrameListener = Keyboard.addListener('keyboardWillChangeFrame', ({ endCoordinates }) => {
-      let { screenY } = endCoordinates;
-
-      if (screenY === height || this.props.keyboardType !== 'numeric') {
-        bottom = -81;
-      } else {
-        bottom = endCoordinates.height - 40;
-      }
-
-      this.props.includeLayoutAnimation ? LayoutAnimation.configureNext(config) : null;
-      this.setState({
-        bottom,
-        width: endCoordinates.width
+        update: {
+          duration: 250,
+          type: LayoutAnimation.Types.keyboard
+        }
       });
+    }
+
+    this.setState({
+      bottom,
+      endCoordinates,
+      width: endCoordinates.width
     });
   }
 
