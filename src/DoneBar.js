@@ -20,14 +20,14 @@ class DoneBar extends React.Component {
     includeLayoutAnimation: PropTypes.bool,
     text: PropTypes.string,
     onDone: PropTypes.func
-  }
+  };
 
   static defaultProps = {
     keyboardType: 'numeric',
     includeLayoutAnimation: true,
     text: 'Done',
     onDone: () => {}
-  }
+  };
 
   state = {
     height: 0,
